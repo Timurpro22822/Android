@@ -14,7 +14,7 @@ import com.example.myandroidapp.ChangeImageActivity;
 import com.example.myandroidapp.MainActivity;
 import com.example.myandroidapp.R;
 import com.example.myandroidapp.dto.category.CategoryCreateDTO;
-import com.example.myandroidapp.service.CategoryNetwork;
+import com.example.myandroidapp.service.ApplicationNetwork;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.ByteArrayOutputStream;
@@ -66,8 +66,8 @@ public class CategoryCreateActivity extends BaseActivity {
         model.setDescription(txtCategoryDescription.getText().toString());
         model.setImageBase64(uriGetBase64(uri));
 
-        CategoryNetwork.getInstance()
-                .getJsonApi()
+        ApplicationNetwork.getInstance()
+                .getCategoriesApi()
                 .create(model)
                 .enqueue(new Callback<Void>() {
                     @Override

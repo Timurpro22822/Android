@@ -12,10 +12,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.myandroidapp.application.HomeApplication;
 import com.example.myandroidapp.category.CategoriesAdapter;
-import com.example.myandroidapp.category.CategoryCreateActivity;
 import com.example.myandroidapp.constants.Urls;
 import com.example.myandroidapp.dto.category.CategoryItemDTO;
-import com.example.myandroidapp.service.CategoryNetwork;
+import com.example.myandroidapp.service.ApplicationNetwork;
 
 
 import java.util.ArrayList;
@@ -51,9 +50,9 @@ public class MainActivity extends BaseActivity {
     }
 
     void requestServer() {
-        CategoryNetwork
+        ApplicationNetwork
                 .getInstance()
-                .getJsonApi()
+                .getCategoriesApi()
                 .list()
                 .enqueue(new Callback<List<CategoryItemDTO>>() {
                     @Override
@@ -71,8 +70,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void onClickDelete(CategoryItemDTO category) {
-        CategoryNetwork.getInstance()
-                .getJsonApi()
+        ApplicationNetwork.getInstance()
+                .getCategoriesApi()
                 .delete(category.getId())
                 .enqueue(new Callback<Void>() {
                     @Override
