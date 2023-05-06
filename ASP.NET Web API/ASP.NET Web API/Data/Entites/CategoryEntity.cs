@@ -7,11 +7,11 @@ namespace ASP.NET_Web_API.Data.Entites
     public class CategoryEntity : BaseEntity<int>
     {
         [Required, StringLength(250)]
-        public string Name { get; set; }
-        public int Priority { get; set; }
+        public string? Name { get; set; }
+        public int? Priority { get; set; }
         [StringLength(255)]
-        public string Image { get; set; }
+        public string? Image { get; set; }
         [StringLength(4000)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }
