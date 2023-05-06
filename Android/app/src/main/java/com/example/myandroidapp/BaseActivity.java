@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myandroidapp.category.CategoryCreateActivity;
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity  extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -20,28 +20,27 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
-        switch (item.getItemId()) {
+        switch(item.getItemId()) {
             case R.id.m_home:
                 try {
-                    intent = new Intent(BaseActivity.this, MainActivity.class);
+                    intent=new Intent(BaseActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
-                } catch (Exception ex) {
-                    System.out.println("Error" + ex.getMessage());
+                } catch(Exception ex) {
+                    System.out.println("--Problem--"+ex.getMessage());
                 }
                 return true;
             case R.id.m_create:
                 try {
-                    intent = new Intent(BaseActivity.this, CategoryCreateActivity.class);
+                    intent=new Intent(BaseActivity.this, CategoryCreateActivity.class);
                     startActivity(intent);
                     finish();
-                } catch (Exception ex) {
-                    System.out.println("Error" + ex.getMessage());
+                } catch(Exception ex) {
+                    System.out.println("--Problem--"+ex.getMessage());
                 }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }

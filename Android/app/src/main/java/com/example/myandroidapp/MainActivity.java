@@ -1,14 +1,21 @@
 package com.example.myandroidapp;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-import com.example.myandroidapp.classes.NetworkService;
-import com.example.myandroidapp.classes.Post;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.example.myandroidapp.application.HomeApplication;
+import com.example.myandroidapp.category.CategoriesAdapter;
+import com.example.myandroidapp.category.CategoryCreateActivity;
+import com.example.myandroidapp.constants.Urls;
+import com.example.myandroidapp.dto.category.CategoryItemDTO;
+import com.example.myandroidapp.service.CategoryNetwork;
 
 
 import java.util.ArrayList;
@@ -19,39 +26,70 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
-//    TextView categoryName;
-    ListView categoryListView;
+
+    CategoriesAdapter adapter;
+    RecyclerView rc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        categoryListView = findViewById(R.id.categoryListView);
-        NetworkService.getInstance()
-                .getJSONApi()
-                .getCategories()
-                .enqueue((new Callback<List<Post>>() {
+
+        ImageView avatar = (ImageView)findViewById(R.id.myImage);
+        String url = Urls.BASE+"/images/1.jpg";
+        Glide.with(HomeApplication.getAppContext())
+                .load(url)
+                .apply(new RequestOptions().override(600))
+                .into(avatar);
+
+        rc = findViewById(R.id.rcvCategories);
+        rc.setHasFixedSize(true);
+        rc.setLayoutManager(new GridLayoutManager(this, 2, RecyclerView.VERTICAL, false));
+        rc.setAdapter(new CategoriesAdapter(new ArrayList<>(), MainActivity.this::onClickDelete));
+
+        requestServer();
+    }
+
+    void requestServer() {
+        CategoryNetwork
+                .getInstance()
+                .getJsonApi()
+                .list()
+                .enqueue(new Callback<List<CategoryItemDTO>>() {
                     @Override
-                    public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
-                        List<Post> posts = response.body();
-                        List<String> data = new ArrayList<>();
-//                        for (Post item:posts
-//                             ) {
-//                            categoryName.append((item.getName()+"\n"));
-//                            categoryListView.append(item.getName()+"\n");
-//                            categoryListView.append(item.getImage()+"\n");
-//                        }
-                        for (Post item : posts) {
-                            data.add(item.getName() + "\n" + item.getImage() + "\n");
-                        }
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, data);
-                        categoryListView.setAdapter(adapter);
+                    public void onResponse(Call<List<CategoryItemDTO>> call, Response<List<CategoryItemDTO>> response) {
+                        List<CategoryItemDTO> list = response.body();
+                        adapter = new CategoriesAdapter(list, MainActivity.this::onClickDelete);
+                        rc.setAdapter(adapter);
                     }
 
                     @Override
-                    public void onFailure(Call<List<Post>> call, Throwable t) {
-                        //textView.append("Error occurred while getting request!");
-                        t.printStackTrace();
+                    public void onFailure(Call<List<CategoryItemDTO>> call, Throwable t) {
+
                     }
-                }));
+                });
+    }
+
+    private void onClickDelete(CategoryItemDTO category) {
+        CategoryNetwork.getInstance()
+                .getJsonApi()
+                .delete(category.getId())
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if(response.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Категорію" + category.getName() + "Видалено",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+
+                    }
+                });
     }
 }

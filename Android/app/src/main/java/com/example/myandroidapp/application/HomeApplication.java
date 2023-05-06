@@ -11,8 +11,8 @@ public class HomeApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        instance = this;
-        appContext = getApplicationContext();
+        instance=this;
+        appContext=getApplicationContext();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
@@ -23,5 +23,4 @@ public class HomeApplication extends Application {
     public static Context getAppContext() {
         return appContext;
     }
-
 }

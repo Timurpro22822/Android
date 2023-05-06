@@ -34,13 +34,15 @@ public class ChangeImageActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE) {
-            if (resultCode == RESULT_OK && data != null) {
+        if(requestCode==PICK_IMAGE) {
+            if(resultCode==RESULT_OK && data!=null) {
                 Uri selectImage = data.getData();
                 cropView.of(selectImage).asSquare().initialize(this);
-            } else
+            }
+            else
                 finish();
-        } else
+        }
+        else
             finish();
     }
     public void onClickCancel(View view) {

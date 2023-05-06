@@ -1,17 +1,8 @@
-package com.example.myandroidapp.classes;
+package com.example.myandroidapp.dto.category;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-
-public class Post {
-    @SerializedName("categoryId")
-    @Expose
+public class CategoryItemDTO {
     private int id;
-    @SerializedName("name")
-    @Expose
     private String name;
-    @SerializedName("image")
-    @Expose
     private String image;
 
     public int getId() {

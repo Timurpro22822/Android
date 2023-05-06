@@ -1,4 +1,4 @@
-package com.example.myandroidapp.classes;
+package com.example.myandroidapp.dto.category;
 
 public class CategoryCreateDTO {
     private String name;
