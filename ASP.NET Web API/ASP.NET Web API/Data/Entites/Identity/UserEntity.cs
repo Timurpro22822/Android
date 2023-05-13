@@ -12,5 +12,7 @@ namespace ASP.NET_Web_API.Data.Entites.Identity
         [StringLength(100)]
         public string Image { get; set; }
         public virtual ICollection<UserRoleEntity> UserRoles { get; set; }
+        public virtual ICollection<CategoryEntity> Categories { get; set; }
+    
     }
 }

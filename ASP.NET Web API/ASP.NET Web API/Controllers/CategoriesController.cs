@@ -1,9 +1,13 @@
-﻿using ASP.NET_Web_API.Data;
+﻿using ASP.NET_Web_API.constants;
+using ASP.NET_Web_API.Data;
 using ASP.NET_Web_API.Data.Entites;
+using ASP.NET_Web_API.Data.Entites.Identity;
 using ASP.NET_Web_API.Helpers;
 using ASP.NET_Web_API.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,32 +15,43 @@ namespace ASP.NET_Web_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = $"{Roles.User}, {Roles.Admin}")]
     public class CategoriesController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly AppEFContext _appEFContext;
+        private readonly UserManager<UserEntity> _userManager;
 
-        public CategoriesController(AppEFContext appEFContext, IMapper mapper)
+        public CategoriesController(AppEFContext appEFContext, IMapper mapper,
+            UserManager<UserEntity> userManager)
         {
             _mapper = mapper;
             _appEFContext = appEFContext;
+            _userManager = userManager;
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetAll()
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             var model = await _appEFContext.Categories
                 .Where(x => x.isDeleted == false)
+                .Where(x => x.UserId == user.Id)
                 .OrderBy(x => x.Priority)
                 .Select(x => _mapper.Map<CategoryItemViewModel>(x))
                 .ToListAsync();
 
             return Ok(model);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             var model = await _appEFContext.Categories
+                .Where(x => x.UserId == user.Id)
                 .Where(x => x.isDeleted == false && x.Id == id)
                 .Select(x => _mapper.Map<CategoryItemViewModel>(x))
                 .ToListAsync();
@@ -45,29 +60,37 @@ namespace ASP.NET_Web_API.Controllers
 
             return Ok(model[0]);
         }
+
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CategoryCreateItemVM model)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             try
             {
                 var cat = _mapper.Map<CategoryEntity>(model);
                 cat.Image = ImageWorker.SaveImage(model.ImageBase64);
+                cat.UserId = user.Id;
                 await _appEFContext.Categories.AddAsync(cat);
                 await _appEFContext.SaveChangesAsync();
                 return Ok(_mapper.Map<CategoryItemViewModel>(cat));
-
             }
             catch (Exception ex)
             {
+
                 return BadRequest(new { error = ex.Message });
             }
         }
         [HttpPut("edit")]
         public async Task<IActionResult> Edit([FromBody] CategoryEditItemVM model)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             try
             {
-                var cat = await _appEFContext.Categories.FindAsync(model.Id);
+                var cat = await _appEFContext.Categories
+                    .Where(x => x.UserId == user.Id)
+                    .SingleOrDefaultAsync(x => x.Id == model.Id);
                 if (cat == null)
                     return NotFound();
                 else
@@ -75,12 +98,12 @@ namespace ASP.NET_Web_API.Controllers
                     cat.Name = model.Name;
                     cat.Description = model.Description;
                     cat.Priority = model.Priority;
-                    if(!string.IsNullOrEmpty(model.ImageBase64))
+                    if (!string.IsNullOrEmpty(model.ImageBase64))
                     {
                         ImageWorker.RemoveImage(cat.Image);
                         cat.Image = ImageWorker.SaveImage(model.ImageBase64);
-
                     }
+
                     _appEFContext.Categories.Update(cat);
                     await _appEFContext.SaveChangesAsync();
                     return Ok(_mapper.Map<CategoryItemViewModel>(cat));
@@ -89,13 +112,19 @@ namespace ASP.NET_Web_API.Controllers
             }
             catch (Exception ex)
             {
+
                 return BadRequest(new { error = ex.Message });
             }
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var cat = await _appEFContext.Categories.FindAsync(id);
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
+            var cat = await _appEFContext.Categories
+                   .Where(x => x.UserId == user.Id)
+                   .SingleOrDefaultAsync(x => x.Id == id);
             if (cat == null)
                 return NotFound();
             cat.isDeleted = true;
@@ -104,3 +133,4 @@ namespace ASP.NET_Web_API.Controllers
         }
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ASP.NET_Web_API.Data.Entites.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ASP.NET_Web_API.Data.Entites
@@ -13,5 +14,8 @@ namespace ASP.NET_Web_API.Data.Entites
         public string? Image { get; set; }
         [StringLength(4000)]
         public string? Description { get; set; }
+        [ForeignKey("User")]
+        public int? UserId { get; set; }
+        public virtual UserEntity User { get; set; }
     }
 }

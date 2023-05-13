@@ -1,5 +1,18 @@
 ﻿namespace ASP.NET_Web_API.Models
 {
+    public class LoginViewModel
+    {
+        /// <summary>
+        /// Пошта користувача
+        /// </summary>
+        /// <example>marko@gmail.com</example>
+        public string Email { get; set; }
+        /// <summary>
+        /// Пароль користувача
+        /// </summary>
+        /// <example>123456</example>
+        public string Password { get; set; }
+    }
     public class RegisterUserViewModel
     {
         public string FirstName { get; set; }
